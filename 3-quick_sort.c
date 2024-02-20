@@ -1,83 +1,102 @@
+
 #include "sort.h"
 
 /**
- * quick_sort - Super fast and impractical sorting function
- * @array: The array to be sorted
- * @size: size of the array
- **/
+ * quick_sort - Function that sorts an array based on
+ * quick sort algorithm
+ * @array: Array to be sorted
+ * @size: Size of array
+ * Return: 0
+ */
 void quick_sort(int *array, size_t size)
 {
-	int *whole_array;
-	size_t full_size;
+	size_t pivot;
 
-	if (array == NULL)
+	if (!array || size < 2)
 		return;
-	whole_array = &array[0];
-	full_size = size;
-	quick_sort_really(array, size, whole_array, full_size);
+
+	print_sort(array, size, 1);
+
+	/* partition and get pivot index */
+	pivot = partition(array, size);
+
+	/* repeat for left of index */
+	quick_sort(array, pivot);
+	/* repeat for index and right */
+	quick_sort(array + pivot, size - pivot);
 }
 
 /**
- * quick_sort_really - Used to call the partitioner to get subarrays
- * @array: The array (sub array of last call) to be sorted
- * @size: Size of the array variable
- * @whole_array: The whole array that is to be sorted
- * @full_size: The full size of the array that's being sorted originally
- **/
-void quick_sort_really(int *array, size_t size, int *whole_array,
-		       size_t full_size)
+ * swap - Function that swaps two values
+ *
+ * @a: Fisrt value
+ * @b: Second value
+ * Return: 0
+ */
+void swap(int *a, int *b)
 {
-	size_t part;
+	int tmp;
 
-	part = 0;
-
-	if (size > 1)
-	{
-		part = partitioner(array, size, whole_array, full_size);
-		quick_sort_really(&array[0], part, whole_array, full_size);
-		quick_sort_really(&array[part], size - part, whole_array, full_size);
-	}
-
+	tmp = *b;
+	*b = *a;
+	*a = tmp;
 }
 
 /**
- * partitioner - Finds where to split the array and swaps larger items right
- * and smaller items left
- * @array: Size of the array (sub array of last call) being sorted
- * @size: Size of the array variable
- * @whole_array: The whole array that was being sorted
- * @full_size: Full size of the original array
- * Return: The index where the array should be split into two subarrays
- **/
-size_t partitioner(int *array, size_t size, int *whole_array, size_t full_size)
+ * partition - Function that sets the pivot for quick_sort
+ *
+ * @array: Array to partition
+ * @size: Size of array
+ * Return: (i + 1)
+ */
+size_t partition(int array[], size_t size)
 {
 	int pivot;
-	long front;
-	long end;
-	int temp;
+	size_t i = -1;
+	size_t j;
+
+	if (!array || size < 2)
+		return (0);
 
 	pivot = array[size - 1];
-	front = -1;
-	end = size;
 
-
-	while (1)
+	for (j = 0; j < size - 1; j++)
 	{
-		do {
-			front++;
-		} while (array[front] < pivot);
-		do {
-			end--;
-		} while (array[end] > pivot);
-
-		if (front >= end)
+		if (array[j] <= pivot)
 		{
-			return ((size_t) front);
+			i++;
+			if (i != j)
+			{
+				swap(&array[i], &array[j]);
+				print_sort(array, size, 0);
+			}
 		}
-		temp = array[front];
-		array[front] = array[end];
-		array[end] = temp;
-		print_array(whole_array, full_size);
 	}
-	return (end);
+	if (i + 1 != size - 1)
+	{
+		swap(&array[i + 1], &array[size - 1]);
+		print_sort(array, size, 0);
+	}
+	return (i + 1);
+}
+
+/**
+ * print_sort - Function that prints as it should
+ * @array: Array to be printed
+ * @size: Size of array
+ * @init: Should initialize array
+ * Return: 0
+ */
+void print_sort(int array[], size_t size, int init)
+{
+	static int *p = (void *)0;
+	static size_t s;
+
+	if (!p && init)
+	{
+		p = array;
+		s = size;
+	}
+	if (!init)
+		print_array(p, s);
 }
